@@ -1,0 +1,43 @@
+#!/bin/bash
+
+inputfile="$1"
+outputfile="$inputfile.enc"
+if [ ! -e "$inputfile" ]; then
+	echo "ERROR: $inputfile not found"
+	exit 1
+fi
+if [ -e "$outputfile" ]; then
+	echo "ERROR: $outputfile already exists"
+	exit 1
+fi
+keyfile="$inputfile.key"
+if [ -e "$keyfile" ]; then
+	echo "ERROR: $keyfile already exists"
+	exit 1
+fi
+
+privatekey="$HOME/.ssh/id_rsa"
+publickey="$HOME/.ssh/id_rsa.pub"
+if [ ! -e "$publickey.pem" ]; then
+	echo "generating public key from private key $privatekey ..."
+	openssl rsa -in ~/.ssh/id_rsa -pubout > "$publickey.pem"
+	if [ ! -e "$publickey.pem" ]; then
+		echo "ERROR: couldn't generate $publickey.pem"
+		exit 1
+	fi
+fi
+
+# generates random 256-bit key
+tempkey="/run/shm/tempkey-$RANDOM.bin"
+openssl rand -base64 32 > $tempkey
+
+# encrypts the key using the RSA public key
+openssl rsautl -encrypt -inkey "$publickey.pem" -pubin -in $tempkey -out "$keyfile"
+
+# encrypts the input file using the generated key
+if [ -n "$(which pv)" ]; then
+	openssl enc -aes-256-cbc -salt -in "$inputfile" -pass file:$tempkey | pv > "$outputfile"
+else
+	openssl enc -aes-256-cbc -salt -in "$inputfile" -out "$outputfile" -pass file:$tempkey
+fi
+rm $tempkey
