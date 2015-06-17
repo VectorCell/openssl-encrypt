@@ -60,7 +60,7 @@ tempkey="/run/shm/tempkey-$RANDOM.bin"
 openssl rand -base64 32 > $tempkey
 
 # encrypts the key using the RSA public key
-openssl rsautl -encrypt -inkey "$publickey.pem" -pubin < $tempkey > "$keyfile"
+openssl rsautl -encrypt -inkey "$publickeypem" -pubin < $tempkey > "$keyfile"
 
 # encrypts the input file using the generated key
 if [ -n "$(which pv)" ]; then
