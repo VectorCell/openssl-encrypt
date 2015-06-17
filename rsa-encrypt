@@ -63,8 +63,10 @@ openssl rand -base64 32 > $tempkey
 openssl rsautl -encrypt -inkey "$publickeypem" -pubin < $tempkey > "$keyfile"
 
 # encrypts the input file using the generated key
+echo "encrypting $inputfile ..."
 if [ -n "$(which pv)" ]; then
-	openssl enc -aes-256-cbc -salt -in "$inputfile" -pass file:$tempkey | pv > "$outputfile"
+	openssl enc -aes-256-cbc -salt -in "$inputfile" -pass file:$tempkey \
+	| pv -s $(ls -l "$inputfile" | awk '{print $5}') > "$outputfile"
 else
 	openssl enc -aes-256-cbc -salt -in "$inputfile" -pass file:$tempkey > "$outputfile"
 fi
