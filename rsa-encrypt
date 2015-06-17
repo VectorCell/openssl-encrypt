@@ -1,6 +1,6 @@
 #!/bin/bash
 
-remove="true"
+remove="false"
 while [[ $# > 0 ]]; do
 	key="$1"
 	case $key in
@@ -16,8 +16,8 @@ while [[ $# > 0 ]]; do
 		outputfile="$2"
 		shift # past argument
 		;;
-		--no-rm)
-		remove="false"
+		--rm)
+		remove="true"
 		;;
 		*)
 		# unknown option
