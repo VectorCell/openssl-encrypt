@@ -7,7 +7,7 @@ Usage:
 ```
 rsa-encrypt [inputfile] [publickey]
 ```
-Generates two files, a key file, encrypted with the public key provided (or the user's default one), and a file encrypted with the key file.
+Generates two files, a key file, encrypted with the public key provided (or the user's default one) using RSA, and a file encrypted with the key file using AES-256.
 
 ```
 rsa-decrypt [keyfile] [inputfile]
