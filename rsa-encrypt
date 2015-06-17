@@ -1,6 +1,9 @@
 #!/bin/bash
 
 inputfile="$1"
+privatekey="$HOME/.ssh/id_rsa"
+publickey="$HOME/.ssh/id_rsa.pub"
+publickeypem="$2"
 outputfile="$inputfile.enc"
 if [ ! -e "$inputfile" ]; then
 	echo "ERROR: $inputfile not found"
@@ -16,12 +19,12 @@ if [ -e "$keyfile" ]; then
 	exit 1
 fi
 
-privatekey="$HOME/.ssh/id_rsa"
-publickey="$HOME/.ssh/id_rsa.pub"
-if [ ! -e "$publickey.pem" ]; then
+if [ -z "$publickeypem" ]; then
+		publickeypem="$publickey.pem"
+if [ ! -e "$publickeypem" ]; then
 	echo "generating public key from private key $privatekey ..."
-	openssl rsa -in ~/.ssh/id_rsa -pubout > "$publickey.pem"
-	if [ ! -e "$publickey.pem" ]; then
+	openssl rsa -in ~/.ssh/id_rsa -pubout > "$publickeypem"
+	if [ ! -e "$publickeypem" ]; then
 		echo "ERROR: couldn't generate $publickey.pem"
 		exit 1
 	fi

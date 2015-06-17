@@ -2,6 +2,7 @@
 
 keyfile="$1"
 inputfile="$2"
+outputfile="$3"
 if [ ! -e "$keyfile" ]; then
 	echo "ERROR: $keyfile not found"
 	exit 1
@@ -10,7 +11,9 @@ elif [ ! -e "$inputfile" ]; then
 	exit 1
 fi
 
-outputfile="$inputfile.dec"
+if [ -z "$outputfile" ]; then
+	outputfile="$inputfile.dec"
+fi
 if [ -e "$outputfile" ]; then
 	echo "ERROR: $outputfile already exists"
 	exit 1
