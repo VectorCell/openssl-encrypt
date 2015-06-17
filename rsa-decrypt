@@ -19,12 +19,12 @@ fi
 tempkey="/run/shm/tempkey-$RANDOM.bin"
 
 # decrypts key for AES-256
-openssl rsautl -decrypt -inkey $HOME/.ssh/id_rsa -in "$keyfile" -out $tempkey
+openssl rsautl -decrypt -inkey $HOME/.ssh/id_rsa < "$keyfile" > $tempkey
 
 # decrypts inputfile
 if [ -n "$(which pv)" ]; then
 	openssl enc -d -aes-256-cbc -in "$inputfile" -pass file:$tempkey | pv > "$outputfile"
 else
-	openssl enc -d -aes-256-cbc -in "$inputfile" -out "$outputfile" -pass file:$tempkey
+	openssl enc -d -aes-256-cbc -in "$inputfile" -pass file:$tempkey > "$outputfile"
 fi
 rm $tempkey
