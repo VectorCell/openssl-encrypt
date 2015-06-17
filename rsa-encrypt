@@ -1,26 +1,50 @@
 #!/bin/bash
 
-inputfile="$1"
+while [[ $# > 0 ]]; do
+	key="$1"
+	case $key in
+		-i)
+		inputfile="$2"
+		shift # past argument
+		;;
+		-k|--key)
+		publickeypem="$2"
+		shift # past argument
+		;;
+		-o)
+		outputfile="$2"
+		shift # past argument
+		;;
+		--default)
+		DEFAULT=YES
+		;;
+		*)
+		# unknown option
+		;;
+	esac
+	shift # past argument or value
+done
+
 privatekey="$HOME/.ssh/id_rsa"
 publickey="$HOME/.ssh/id_rsa.pub"
-publickeypem="$2"
-outputfile="$inputfile.enc"
 if [ ! -e "$inputfile" ]; then
 	echo "ERROR: $inputfile not found"
 	exit 1
 fi
-if [ -e "$outputfile" ]; then
-	echo "ERROR: $outputfile already exists"
-	exit 1
+if [ -z "$outputfile" ]; then
+	outputfile="$inputfile.enc"
+	keyfile="$inputfile.key"
+else
+	keyfile="$outputfile.key"
 fi
-keyfile="$inputfile.key"
 if [ -e "$keyfile" ]; then
 	echo "ERROR: $keyfile already exists"
 	exit 1
 fi
 
 if [ -z "$publickeypem" ]; then
-		publickeypem="$publickey.pem"
+	publickeypem="$publickey.pem"
+fi
 if [ ! -e "$publickeypem" ]; then
 	echo "generating public key from private key $privatekey ..."
 	openssl rsa -in ~/.ssh/id_rsa -pubout > "$publickeypem"

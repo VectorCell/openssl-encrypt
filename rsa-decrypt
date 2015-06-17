@@ -1,8 +1,30 @@
 #!/bin/bash
 
-keyfile="$1"
-inputfile="$2"
-outputfile="$3"
+while [[ $# > 0 ]]; do
+	key="$1"
+	case $key in
+		-i)
+		inputfile="$2"
+		shift # past argument
+		;;
+		-k|--key)
+		keyfile="$2"
+		shift # past argument
+		;;
+		-o)
+		outputfile="$2"
+		shift # past argument
+		;;
+		--default)
+		DEFAULT=YES
+		;;
+		*)
+		# unknown option
+		;;
+	esac
+	shift # past argument or value
+done
+
 if [ ! -e "$keyfile" ]; then
 	echo "ERROR: $keyfile not found"
 	exit 1
@@ -12,7 +34,17 @@ elif [ ! -e "$inputfile" ]; then
 fi
 
 if [ -z "$outputfile" ]; then
-	outputfile="$inputfile.dec"
+	if [ "$(echo $inputfile | rev | colrm 5 | rev)" == ".enc" ]; then
+		basename="$(echo $inputfile | rev | colrm 1 4 | rev)"
+		if [ ! -e "$basename" ]; then
+			outputfile="$basename"
+		else
+			outputfile="$inputfile.dec"
+			echo "$basename already exists, decrypting file to $outputfile"
+		fi
+	else
+		outputfile="$inputfile"
+	fi
 fi
 if [ -e "$outputfile" ]; then
 	echo "ERROR: $outputfile already exists"
