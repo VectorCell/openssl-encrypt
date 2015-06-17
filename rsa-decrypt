@@ -1,5 +1,6 @@
 #!/bin/bash
 
+remove="true"
 while [[ $# > 0 ]]; do
 	key="$1"
 	case $key in
@@ -15,8 +16,8 @@ while [[ $# > 0 ]]; do
 		outputfile="$2"
 		shift # past argument
 		;;
-		--default)
-		DEFAULT=YES
+		--no-rm)
+		remove="false"
 		;;
 		*)
 		# unknown option
@@ -63,3 +64,8 @@ else
 	openssl enc -d -aes-256-cbc -in "$inputfile" -pass file:$tempkey > "$outputfile"
 fi
 rm $tempkey
+
+if [ "$remove" == "true" ]; then
+	echo "removing $inputfile and $keyfile"
+	rm "$inputfile" "$keyfile"
+fi
