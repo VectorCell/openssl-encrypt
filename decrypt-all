@@ -10,7 +10,7 @@ if [ "$total" != "0" ]; then
 		((count=count+1))
 		printf "%${zeroes}d / $total\n" $count
 		if [ -e "$encfile" ]; then
-			echo to-do: decrypt
+			rsa-decrypt --rm -i "$encfile" -k "$keyfile"
 		else
 			echo "ERROR: unable to find $encfile"
 		fi
