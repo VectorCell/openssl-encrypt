@@ -65,14 +65,14 @@ openssl rsautl -encrypt -inkey "$publickeypem" -pubin < $tempkey > "$keyfile"
 # encrypts the input file using the generated key
 echo "encrypting $inputfile ..."
 if [ -n "$(which pv)" ]; then
-	openssl enc -aes-256-cbc -salt -in "$inputfile" -pass file:$tempkey \
-	| pv -s $(ls -l "$inputfile" | awk '{print $5}') > "$outputfile"
+#	tar -c "$inputfile" | openssl enc -aes-256-cbc -salt -pass file:$tempkey | pv > "$outputfile"
+	tar -c "$inputfile" | openssl enc -aes-256-cbc -salt -pass file:$tempkey | pv -s $(du -S -B1 | awk '{print $1}') > "$outputfile"
 else
-	openssl enc -aes-256-cbc -salt -in "$inputfile" -pass file:$tempkey > "$outputfile"
+	tar -c "$inputfile" | openssl enc -aes-256-cbc -salt -pass file:$tempkey > "$outputfile"
 fi
 rm $tempkey
 
 if [ "$remove" == "true" ]; then
 	echo "removing $inputfile"
-	rm "$inputfile"
+	rm -r "$inputfile"
 fi

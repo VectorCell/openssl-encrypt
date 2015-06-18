@@ -12,10 +12,6 @@ while [[ $# > 0 ]]; do
 		keyfile="$2"
 		shift # past argument
 		;;
-		-o)
-		outputfile="$2"
-		shift # past argument
-		;;
 		--rm)
 		remove="true"
 		;;
@@ -27,28 +23,18 @@ while [[ $# > 0 ]]; do
 done
 
 if [ ! -e "$keyfile" ]; then
-	echo "ERROR: $keyfile not found"
+	if [ -z "$keyfile" ]; then
+		echo "ERROR: keyfile not specified"
+	else
+		echo "ERROR: $keyfile not found"
+	fi
 	exit 1
 elif [ ! -e "$inputfile" ]; then
-	echo "ERROR: $inputfile not found"
-	exit 1
-fi
-
-if [ -z "$outputfile" ]; then
-	if [ "$(echo $inputfile | rev | colrm 5 | rev)" == ".enc" ]; then
-		basename="$(echo $inputfile | rev | colrm 1 4 | rev)"
-		if [ ! -e "$basename" ]; then
-			outputfile="$basename"
-		else
-			outputfile="$inputfile.dec"
-			echo "$basename already exists, decrypting file to $outputfile"
-		fi
+	if [ -z "$inputfile" ]; then
+		echo "ERROR: inputfile not specified"
 	else
-		outputfile="$inputfile"
+		echo "ERROR: $inputfile not found"
 	fi
-fi
-if [ -e "$outputfile" ]; then
-	echo "ERROR: $outputfile already exists"
 	exit 1
 fi
 
@@ -60,14 +46,24 @@ openssl rsautl -decrypt -inkey $HOME/.ssh/id_rsa < "$keyfile" > $tempkey
 # decrypts inputfile
 echo "decrypting $inputfile ..."
 if [ -n "$(which pv)" ]; then
-	openssl enc -d -aes-256-cbc -in "$inputfile" -pass file:$tempkey \
-	| pv -s $(ls -l "$inputfile" | awk '{print $5}') > "$outputfile"
+	openssl enc -d -aes-256-cbc -in "$inputfile" -pass file:$tempkey | pv -s $(ls -l "$inputfile" | awk '{print $5}') | tar -x
+#	if [ "$?" != "0" ]; then
+#		openssl enc -d -aes-256-cbc -in "$inputfile" -pass file:$tempkey \
+#			| pv -s $(ls -l "$inputfile" | awk '${print $5}') \
+#			> "output-$RANDOM.file"
+#	fi
 else
-	openssl enc -d -aes-256-cbc -in "$inputfile" -pass file:$tempkey > "$outputfile"
+	openssl enc -d -aes-256-cbc -in "$inputfile" -pass file:$tempkey \
+	| tar -x
+	if [ "$?" != "0" ]; then
+		openssl enc -d -aes-256-cbc -in "$inputfile" -pass file:$tempkey \
+			> "output-$RANDOM.file"
+	fi
 fi
-rm $tempkey
 
 if [ "$remove" == "true" ]; then
 	echo "removing $inputfile and $keyfile"
 	rm "$inputfile" "$keyfile"
 fi
+
+rm $tempkey
