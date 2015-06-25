@@ -33,8 +33,9 @@ if [ ! -e "$inputfile" ]; then
 	exit 1
 fi
 if [ -z "$outputfile" ]; then
-	outputfile="$inputfile.enc"
-	keyfile="$inputfile.key"
+	tempname=$(echo $inputfile | rev | tr ' /' '* ' | awk '{print $1}' | tr '*' ' ' | rev)
+	outputfile="$tempname.enc"
+	keyfile="$tempname.key"
 else
 	keyfile="$outputfile.key"
 fi
@@ -65,8 +66,7 @@ openssl rsautl -encrypt -inkey "$publickeypem" -pubin < $tempkey > "$keyfile"
 # encrypts the input file using the generated key
 echo "encrypting $inputfile ..."
 if [ -n "$(which pv)" ]; then
-#	tar -c "$inputfile" | openssl enc -aes-256-cbc -salt -pass file:$tempkey | pv > "$outputfile"
-	tar -c "$inputfile" | openssl enc -aes-256-cbc -salt -pass file:$tempkey | pv -s $(du -S -B1 | awk '{print $1}') > "$outputfile"
+	tar -c "$inputfile" | openssl enc -aes-256-cbc -salt -pass file:$tempkey | pv -s $(du -s -B1 "$inputfile" | awk '{print $1}') > "$outputfile"
 else
 	tar -c "$inputfile" | openssl enc -aes-256-cbc -salt -pass file:$tempkey > "$outputfile"
 fi
