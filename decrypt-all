@@ -10,7 +10,7 @@ zeroes=$(python -c "import math; print int(math.ceil(math.log($total + 1, 10)))"
 count=0
 
 if [ "$total" != "0" ]; then
-	find -name "*.key" | while read keyfile; do
+	find "$dir" -name "*.key" | while read keyfile; do
 		encfile="$(echo $keyfile | rev | colrm 1 4 | rev).enc"
 		((count=count+1))
 		printf "%${zeroes}d / $total\n" $count
