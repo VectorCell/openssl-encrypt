@@ -1,5 +1,10 @@
 #!/bin/bash
 
+dir="."
+if [ -n "$1" ]; then
+	dir="$1"
+fi
+
 total=$(find -name "*.key" | wc -l)
 zeroes=$(python -c "import math; print int(math.ceil(math.log($total + 1, 10)))")
 count=0
