@@ -37,7 +37,9 @@ if [ -z "$outputfile" ]; then
 	outputfile="$tempname.enc"
 	keyfile="$tempname.key"
 else
-	keyfile="$outputfile.key"
+	tempname="$outputfile"
+	outputfile="$tempname.enc"
+	keyfile="$tempname.key"
 fi
 if [ -e "$keyfile" ]; then
 	echo "ERROR: $keyfile already exists"
