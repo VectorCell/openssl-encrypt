@@ -60,6 +60,10 @@ else
 			> "output-$RANDOM.file"
 	fi
 fi
+if [ "$?" != "0" ] && [ "$remove" == "true" ]; then
+	echo "not removing files due to unsuccessful decryption"
+	remove="false"
+fi
 
 if [ "$remove" == "true" ]; then
 	echo "removing $inputfile and $keyfile"

@@ -72,6 +72,10 @@ if [ -n "$(which pv)" ]; then
 else
 	tar -c "$inputfile" | openssl enc -aes-256-cbc -salt -pass file:$tempkey > "$outputfile"
 fi
+if [ "$?" != "0" ] && [ "$remove" == "true" ]; then
+	echo "not removing files due to unsuccessful encryption"
+	remove="false"
+fi
 rm $tempkey
 
 if [ "$remove" == "true" ]; then
