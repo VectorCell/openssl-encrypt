@@ -28,8 +28,16 @@ fi
 count=0
 find -type f | sort | while read file; do
 	rsa-encrypt -k "$keyfile" -i "$file" -o $(printf "%03d" $count)
-	if [ "$remove" == "true" ] && [ "$?" == "0" ]; then
+	if [ "$?" != "0" ]; then
+		remove="false"
+	fi
+	if [ "$remove" == "true" ]; then
 		rm "$file"
 	fi
 	((count=count+1))
 done
+if [ "$remove" == "true" ]; then
+	find -type d | sort | tac | while read dir; do
+		rmdir "$dir"
+	done
+fi
