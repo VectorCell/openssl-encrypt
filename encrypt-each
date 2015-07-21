@@ -37,7 +37,7 @@ find -type f | sort | while read file; do
 	((count=count+1))
 done
 if [ "$remove" == "true" ]; then
-	find -type d | sort | tac | while read dir; do
+	find -type d | sort | tail -n +2 | tac | while read dir; do
 		rmdir "$dir"
 	done
 fi
