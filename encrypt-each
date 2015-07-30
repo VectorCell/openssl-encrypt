@@ -20,16 +20,12 @@ while [[ $# > 0 ]]; do
 done
 
 total=$(find -type f | wc -l)
-zeroes=$(python -c "import math; print int(math.ceil(math.log($total + 1, 10)))")
+zeroes=$(python -c "import math; print max(3, int(math.ceil(math.log($total + 1, 10))))")
 count=0
-if [ $total -gt 1000 ]; then
-	echo "too many files!"
-	exit 1
-fi
 
 find -type f | sort | while read file; do
 	printf "%${zeroes}d / $total\n" $count
-	rsa-encrypt -k "$keyfile" -i "$file" -o $(printf "%03d" $count)
+	rsa-encrypt -k "$keyfile" -i "$file" -o $(printf "%0${zeroes}d" $count)
 	if [ "$?" != "0" ]; then
 		remove="false"
 	fi
