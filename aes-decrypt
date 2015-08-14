@@ -1,0 +1,4 @@
+#!/bin/bash
+
+# will prompt for password 
+openssl enc -d -aes-256-cbc -salt
